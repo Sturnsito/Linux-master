@@ -1,7 +1,7 @@
 // CONTROLADOR: article.js
 const validator = require("validator");
 // usaremos el esquema definido para salvar los artículos en la BD
-const Article = require("./models/Arcticle.js");
+const Article = require("../models/Article.js");
 
 // convertimos la función en asíncrona para que se espere a la 
 // respuesta de la escritura en la base de datos
@@ -60,3 +60,37 @@ const create = async (req, res) => {
        });
    }
 };
+
+const prueba = (req, res) => {
+    return res.status(200).json({
+        mensaje: "Soy una acción de prueba en mi controlador de artí­culos"
+    });
+ };
+ 
+
+const cursos = (req, res) => {
+    console.log("Se ha ejecutado el Endpoint 'cursos'");
+   
+    //Devolvemos una colección de objetos JSON
+    return res.status(200).json([
+        {
+            curso: "Aprende API REST",
+            autor: "AVG",
+            url: "antoniovarela.es"
+        },
+        {
+            curso: "Aprende P5js",
+            autor: "AVG",
+            url: "antoniovarela.es"
+        }
+    ]);
+   
+ };
+ 
+
+module.exports = {
+    prueba,
+    cursos,
+    create
+ }
+ 
