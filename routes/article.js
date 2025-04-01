@@ -7,7 +7,7 @@ const router = express.Router();
 
 
 // Declaramos el objeto controlador para nuestras rutas
-const articleController = require("../controllers/article");
+const articleController = require("./controllers/article.js");
 
 
 

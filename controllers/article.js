@@ -1,7 +1,7 @@
 // CONTROLADOR: article.js
 const validator = require("validator");
 // usaremos el esquema definido para salvar los artículos en la BD
-const Article = require("home/sofi/OOMG/models/Arcticle.js");
+const Article = require("./models/Arcticle.js");
 
 // convertimos la función en asíncrona para que se espere a la 
 // respuesta de la escritura en la base de datos
