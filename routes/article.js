@@ -17,6 +17,9 @@ router.get("/ruta-de-prueba", articleController.prueba);
 router.get("/cursos", articleController.cursos);
 router.post("/create", articleController.create);
 router.get("/lista/:id?:page?:limit?", articleController.getArticles);
+router.delete("/delete/:id", articleController.deleteArticle);
+router.put("/update/:id", articleController.updateArticle);
+
 
 
 

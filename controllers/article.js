@@ -1,7 +1,10 @@
 // CONTROLADOR: article.js
 const validator = require("validator");
+const {validar} = require("../helpers/validar");
 // usaremos el esquema definido para salvar los artículos en la BD
 const Article = require("../models/Article.js");
+const mongoose = require('mongoose');
+
 
 // convertimos la función en asíncrona para que se espere a la 
 // respuesta de la escritura en la base de datos
@@ -11,6 +14,20 @@ const create = async (req, res) => {
    // leemos los datos recibidos por post {title, contain}
    let parametros = req.body;
 
+   try {
+
+
+    if (!validar(parametros)){
+        throw new Error("Información recibida no validada!");
+    }
+
+
+}catch(err){
+    return  res.status(400).json({
+        mensaje: "Se ha producido un error al validar datos en \/create",
+        status: "error: "+err.message
+    });
+}
 
    //validamos los datos
    try {
@@ -144,7 +161,112 @@ const cursos = (req, res) => {
     }
  };
  
+ const deleteArticle = async (req, res) => {
+    try {
+        // Extraer y limpiar el id del parámetro para cargar
+  // correctamente el valor del id ya sea con localhost:3900/xxxx
+  // o con localhost:3900/id=xxxx 
+        const id = req.params.id.includes('=') ? 
+  req.params.id.split('=')[1] : 
+  req.params.id;
+        // Si va bien en id tenemos el valor xxxx que representa al id
+  // del artículo que deseamos eliminar
  
+ 
+        // Verificar si el id es un ObjectId válido
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                mensaje: `Debes proporcionar un id de artí­culo válido`,
+                status: "error"
+            });
+        }
+ 
+ 
+        // Intentar eliminar el artí­culo
+        const articleDeleted = await Article.findOneAndDelete({ _id: id }).lean().exec();
+ 
+ 
+        // Verificar si se eliminó el artí­culo
+        if (!articleDeleted) {
+            return res.status(404).json({
+                mensaje: `No se ha encontrado el artículo con el id: ${id} proporcionado`,
+                status: "error"
+            });
+        }
+ 
+ 
+        // Devolver la respuesta de éxito y una copia del artí­culo
+  // eliminado
+        return res.status(200).json({
+            status: "success",
+            articleDeleted
+        });
+ 
+ 
+    } catch (err) {
+        return res.status(500).json({
+            mensaje: "Error al eliminar un artí­culo en /lista",
+            status: "error: " + err.message
+        });
+    }
+ };
+ 
+ const updateArticle = async (req, res) => {
+    try {
+        // Extraer y limpiar el id del parámetro
+        const id = req.params.id.includes('=') ? 
+  req.params.id.split('=')[1] : 
+  req.params.id;
+       
+        // Verificar si el id es válido
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                mensaje: `Debes proporcionar un id de artí­culo válido`,
+                status: "error"
+            });
+        }
+ 
+ 
+        //obtener del body el resto de info
+        let parametros = req.body;
+        
+        //validamos los datos
+       if (!validar(parametros)){
+        throw new Error("Información recibida para actualizar no pudo ser validada!");
+    }
+
+        // Agregamos la fecha de modificación
+        parametros.date = Date.now();
+ 
+ 
+        // Actualizamos el artí­culo
+        const articleUpdated = 
+   await Article.findOneAndUpdate(
+ { _id: id }, // Filtro de búsqueda WHERE
+ parametros,  // Valores a actualizar
+ {new: true}) // Indico que retorne el artículo 
+  // actualizado (no el que estaba en 
+  // la base de datos
+                           .lean()
+                           .exec();
+ 
+ 
+        // Devolver la respuesta de éxito y una copia del artí­culo
+  // actualizado
+        return res.status(200).json({
+            status: "success",
+            articleUpdated
+        });
+ 
+ 
+    }
+    catch(err){
+        return  res.status(400).json({
+            mensaje: "Se ha producido un error al validar datos en \/create",
+            status: "error: "+err.message
+        });
+    }
+ };
  
  
  
@@ -153,6 +275,8 @@ module.exports = {
     prueba,
     cursos,
     create,
-    getArticles
+    getArticles,
+    deleteArticle,
+    updateArticle
  }
  
