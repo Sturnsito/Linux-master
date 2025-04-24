@@ -16,6 +16,8 @@ const articleController = require("../controllers/article.js");
 router.get("/ruta-de-prueba", articleController.prueba);
 router.get("/cursos", articleController.cursos);
 router.post("/create", articleController.create);
+router.get("/lista/:id?:page?:limit?", articleController.getArticles);
+
 
 
 module.exports = router;

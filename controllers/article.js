@@ -87,10 +87,72 @@ const cursos = (req, res) => {
    
  };
  
+ const getArticles = async (req, res) => {
+    try {
+      
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const id = req.query.id;
+        
+  let articles;
+ 
+ 
+      
+        if (id) {
+            try {
+                articles = await Article.find({_id: id})
+                .lean()
+                .exec();
+            }
+            catch (err) { 
+                return res.status(404).json({
+                    mensaje: `No se ha encontrado el artículo con el id: ${id} en /lista`,
+                    status: "error: " + err.message
+                });
+            }                                         
+        }
+        else {
+            articles = await Article.find({})
+            .skip((page - 1) * limit)
+            .limit(limit)
+
+            .sort({date: -1})  
+            .lean()
+            .exec();
+        }
+ 
+ 
+        if (!articles || articles.length === 0) {
+            return res.status(404).json({
+                mensaje: "No se han encontrado artículos en /lista",
+                status: "error"
+            });
+        }
+ 
+ 
+        return res.status(200).json({
+            status: "success",
+            articles
+        });
+ 
+ 
+    } catch (err) {
+        return res.status(404).json({
+            mensaje: "Error desconocido al listar artí­culos en /lista",
+            status: "error: " + err
+        });
+    }
+ };
+ 
+ 
+ 
+ 
+ 
 
 module.exports = {
     prueba,
     cursos,
-    create
+    create,
+    getArticles
  }
  
