@@ -4,6 +4,9 @@ const {validar} = require("../helpers/validar");
 // usaremos el esquema definido para salvar los artículos en la BD
 const Article = require("../models/Article.js");
 const mongoose = require('mongoose');
+const fs = require("fs");
+const path = require('path');
+const sanitize = require('sanitize-filename');
 
 
 // convertimos la función en asíncrona para que se espere a la 
@@ -50,6 +53,7 @@ const create = async (req, res) => {
        });
    }
 
+   
 
    // creamos el objeto a guardar con los parámetros validados
    // el objeto sigue las propiedades del esquema Article definido
@@ -193,7 +197,16 @@ const cursos = (req, res) => {
                 status: "error"
             });
         }
- 
+ // si tení­a un fichero de imagen asociado, deberí­amos eliminarlo
+ const oldImage = articleDeleted.image;
+ if (oldImage !== "default.png") {
+     fs.unlink(path.join('./assets/images/articles/', oldImage), (err) => {
+         if (err) {
+             console.error("Error al eliminar la imagen antigua:", err.message);
+         }
+     });
+ }
+
  
         // Devolver la respuesta de éxito y una copia del artí­culo
   // eliminado
@@ -268,7 +281,198 @@ const cursos = (req, res) => {
     }
  };
  
+ // Para subir una imagen al servidor
+const uploadImage = async (req, res) => {
+    try {
+        // Extraer y limpiar el id del parámetro
+        const id = req.params.id.includes('=') ? 
+                   req.params.id.split('=')[1] : req.params.id;
+       
+        // Verificar si el id es válido
+        if (!mongoose.Types.ObjectId.isValid(id)) {
  
+ 
+            // No tenemos un ID válido. Pero el fichero ha sido subido. 
+            // Debemos eliminarlo
+            fs.unlink(req.file.path, (err) => {
+                if (err) {
+                    return res.status(500).json({
+                        mensaje: "Error al eliminar el archivo no válido",
+                        status: "error",
+                        error: err.message
+                    });
+                }
+            });
+ 
+ 
+            return res.status(400).json({
+                mensaje: `Debes proporcionar un id de artículo válido`,
+                status: "error"
+            });
+        }
+ 
+ 
+        // Buscar el artí­culo para comprobar si tiene una imagen 
+  // asociada de una subida anterior, la antigua hay que 
+  // eliminarla
+        const article = await Article.findById(id).lean().exec();
+        if (!article) {
+            // El artículo no existe. Eliminar el archivo subido
+            fs.unlink(req.file.path, (err) => {
+                if (err) {
+                    return res.status(500).json({
+                        mensaje: "Error al eliminar el archivo no válido",
+                        status: "error",
+                        error: err.message
+                    });
+                }
+            });
+ 
+ 
+            return res.status(404).json({
+                mensaje: "No se ha encontrado el artículo",
+                status: "error"
+            });
+        }
+ 
+ 
+        // Guardar el nombre de la imagen antigua si existe
+      // recuerda que un artículo tenía definido un esquema en nuestro 
+  // models/Article.js y en nuestra base de datos
+        const oldImage = article.image;
+ 
+ 
+        // Agregamos la imagen y la fecha de modificación
+        const parametros = { image: req.file.filename, date: Date.now() };
+ 
+ 
+        // Actualizamos el artículo
+        const articleUpdated = await Article.findOneAndUpdate({ _id: id }, parametros, { new: true }).lean().exec();
+ 
+ 
+        if (!articleUpdated) {
+            return res.status(500).json({
+                mensaje: "Error al actualizar el artí­culo",
+                status: "error"
+            });
+        }
+ 
+ 
+        // Si tuvo éxito la actualización y hay una imagen antigua, 
+  // hay que intentar eliminarla
+        if (oldImage && oldImage !== "default.png") {
+            fs.unlink(path.join('./assets/images/articles/', oldImage), (err) => {
+                if (err) {
+                    console.error("Error al eliminar la imagen antigua:", err.message);
+                }
+            });
+        }
+ 
+ 
+        // Devolver la respuesta de éxito y una copia del artí­culo actualizado
+        return res.status(200).json({
+            status: "success",
+            articleUpdated
+        });
+ 
+ 
+    }
+    catch(err){
+        return  res.status(400).json({
+            mensaje: "Se ha producido un error al subir la imagen en \/image",
+            status: "error: "+err.message
+        });
+    }
+ };
+ 
+ 
+ 
+ 
+ // Obtenemos la imagen cuyo nombre de archivo le pasamos por parámetro
+ const getImage = async (req, res) => {
+    try {
+        // Saneamos el nombre del archivo
+        const filename = sanitize(req.params.filename).replace(/ /g, '_').replace(/[^a-zA-Z0-9._-]/g, '');
+ 
+ 
+        if (!filename) {
+            return res.status(400).json({
+                mensaje: "El nombre del fichero proporcionado no es válido",
+                status: "error"
+            });
+        }
+ 
+ 
+      // Le añadimos al nombre del fichero, la carpeta donde se 
+  // encuentran los archivos subidos
+        const fname = path.join('./assets/images/articles/', filename);
+        
+      // Normalizamos la ruta de acceso al archivo para garantizar que 
+  // sea consistente 
+  const normalizedPath = path.normalize(fname);
+ 
+ 
+      // Intentamos acceder al fichero para enviarlo al cliente que lo 
+  // solicita
+        fs.access(normalizedPath, fs.constants.F_OK, (err) => {
+            if (!err) {
+              // Enviamos el fichero con el sendFile del response y 
+                // usamos el resolve del objeto path y así convertir la 
+                // ruta normalizada del archivo enviado en una ruta 
+                // absoluta
+                return res.sendFile(path.resolve(normalizedPath));
+            } else {
+                console.error('Error al acceder al archivo:', err.message);
+                return res.status(404).json({
+                    mensaje: "El fichero no existe en /image",
+                    status: "error"
+                });
+            }
+        });
+    } catch (err) {
+        return res.status(500).json({
+            mensaje: "Error al acceder al fichero en /image",
+            status: "error: " + err.message
+        });
+    }
+ };
+ 
+ const searchArticles = async (req, res) => {
+    try {
+     
+      // Leemos el parámetro que hemos denominado “topic” que contiene
+      // el patrón de búsqueda
+        const cadena = req.params.topic;
+ 
+ 
+        // Buscamos todo lo que cumpla con el patrón en el campo “title” 
+  // o en el campo “contain” o en el campo “image” 
+  // $regex interpreta la cadena del patrón de búsqueda como una
+        // expresión regular y como opciones le indicamos que ignore las 
+        // diferencias de mayúsculas y minúsculas
+  const articlesFound = await Article.find( {"$or": [
+            { "title": { "$regex": cadena, "$options": "i"} },
+            { "contain": { "$regex": cadena, "$options": "i"} },
+            { "image": { "$regex": cadena, "$options": "i"} }
+        ]}).sort({date: -1}).lean().exec();
+ 
+ 
+        // Devolver la respuesta de Éxito y la lista de artículos 
+  // encontrados (aunque sea una cadena vacía [] de artículos)
+        return res.status(200).json({
+            status: "success",
+            articlesFound
+        });
+ 
+ 
+    }
+    catch(err) {
+        return res.status(500).json({
+            mensaje: "Error al buscar artículos en /search",
+            status: "error: " + err.message
+        });
+    }
+ };
  
 
 module.exports = {
@@ -277,6 +481,10 @@ module.exports = {
     create,
     getArticles,
     deleteArticle,
-    updateArticle
+    updateArticle,
+    uploadImage,
+    getImage,
+    searchArticles,
+ 
  }
  
