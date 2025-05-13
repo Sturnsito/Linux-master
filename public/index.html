@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Añadir FontAwesome 4.7.0 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+
+    <header>
+        <h1>Blog</h1>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="#" id="menu-list">Listar Artículos</a></li>
+            <li><a href="#" id="menu-create">Crear Artículo</a></li>
+            <li>
+                <div id="search-container">
+                    <input type="text" id="search-box" placeholder="Buscar...">
+                    <button id="search-button"><i class="fa fa-search"></i></button>
+                </div>
+            </li>
+        </ul>
+    </nav>
+    <main>
+        <section id="articles" class="hidden">
+            <h2>Artículos</h2>
+            <div id="article-list"></div>
+            <div id="pagination">
+                <button id="first-page">Primera</button>
+                <button id="prev-page">Anterior</button>
+                <span id="page-info"></span>
+                <button id="next-page">Siguiente</button>
+                <button id="last-page">Última</button>
+            </div>
+        </section>
+
+        <section id="article-details" class="hidden">
+            <h2>Detalles del Artículo</h2>
+            <div id="article-detail"></div>
+            <button id="back-to-list">Volver al listado</button>
+        </section>
+
+        <section id="new-article" class="hidden">
+            <h2>Nuevo Artículo</h2>
+            <form id="article-form">
+                <label for="title">Título:</label>
+                <input type="text" id="title" name="title" required>
+                
+                <label for="content">Contenido:</label>
+                <textarea id="content" name="content" required></textarea>
+                
+                <button type="submit">Añadir Artículo</button>
+            </form>
+        </section>
+
+        <section id="update-article" class="hidden">
+            <h2>Modificar Artículo</h2>
+            <form id="update-form">
+                <input type="hidden" id="update-id" name="id">
+                
+                <label for="update-title">Título:</label>
+                <input type="text" id="update-title" name="title" required>
+                
+                <label for="update-content">Contenido:</label>
+                <textarea id="update-content" name="content" required></textarea>
+                
+                <button type="submit">Actualizar Artículo</button>
+            </form>
+        </section>
+
+        <section id="upload-image" class="hidden">
+            <h2>Subir Imagen</h2>
+            <form id="upload-form" enctype="multipart/form-data">
+                <input type="hidden" id="upload-id" name="id">
+                
+                <label for="upload-file">Seleccionar Imagen:</label>
+                <input type="file" id="upload-file" name="file" accept="image/*" required>
+                
+                <button type="submit">Subir Imagen</button>
+            </form>
+        </section>
+
+        <section id="search-results" class="hidden">
+            <h2>Resultados de la Búsqueda</h2>
+            <div id="search-results-list"></div>
+        </section>
+
+        <section id="error-message" class="hidden">
+            <h2>Error</h2>
+            <p id="error-text"></p>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2025 Blog</p>
+    </footer>
+    <script src="code.js"></script>
+</body>
+</html>
+

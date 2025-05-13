@@ -127,7 +127,7 @@ router.get("/search/:topic", articleController.searchArticles);
 // fichero de imagen y asignarlo a un artículo cuyo id se pasa por 
 // parámetro
 router.post("/image/:id", 
-      [uploads.single("file0")], // middleware de multer
+      [uploads.single("file")], // middleware de multer
       validateImageMimetype, // middleware que comprueba el tipo
       articleController.uploadImage);
 

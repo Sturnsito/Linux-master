@@ -115,16 +115,25 @@ const cursos = (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const id = req.query.id;
         
-  let articles;
- 
+        
+        let [articles, total] = [[ ], 0]; 
  
       
         if (id) {
             try {
-                articles = await Article.find({_id: id})
-                .lean()
-                .exec();
+                [articles, total] = await Promise.all([
+                    Article.find({_id: id})
+                    // lean es por si solo queremos devolver los
+                    // resultados de la colección, y no traer más
+                    // información de mongoose de los datos leídos
+                                            .lean()
+                                            .exec(),
+                    Article.countDocuments()
+                ]);
             }
+            // al filtrar por find, que es el equivalente a un WHERE en
+            // una consulta relacional, si no se encuentra el valor, se
+            // genera un error
             catch (err) { 
                 return res.status(404).json({
                     mensaje: `No se ha encontrado el artículo con el id: ${id} en /lista`,
@@ -133,27 +142,39 @@ const cursos = (req, res) => {
             }                                         
         }
         else {
-            articles = await Article.find({})
-            .skip((page - 1) * limit)
-            .limit(limit)
+            [articles, total] = await Promise.all([
+                Article.find({})
+                // Si indicamos una página, el valor del límite nos
+                // sirve para indicar cuantos artículos queremos por
+                // página y nos pagina el resultado obtenido
+                        .skip((page - 1) * limit)
+                        .limit(limit)
+                //más recientes primero, ordenamos por fecha en orden
+                // inverso (-1), si no indicamos nada o indicamos (1)
+                // sería de menor a mayor
+                        .sort({date: -1})  
+                        .lean()
+                        .exec(),
+                Article.countDocuments()
+        ]);
 
-            .sort({date: -1})  
-            .lean()
-            .exec();
         }
  
  
         if (!articles || articles.length === 0) {
             return res.status(404).json({
                 mensaje: "No se han encontrado artículos en /lista",
-                status: "error"
+                status: "error",
+                articles,
+                total
             });
         }
  
  
         return res.status(200).json({
             status: "success",
-            articles
+            articles,
+            total
         });
  
  

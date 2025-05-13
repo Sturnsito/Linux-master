@@ -1,0 +1,127 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+header, footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 1em;
+}
+nav {
+    background-color: #444;
+    color: white;
+    padding: 1em;
+    text-align: center;
+}
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+nav ul li button {
+    padding: 0.5em;
+    cursor: pointer;
+}
+nav ul li a {
+    color: white;
+    text-decoration: none;
+}
+nav ul li a {
+    color: white;
+    text-decoration: none;
+}
+main {
+    padding: 1em;
+}
+.hidden {
+    display: none;
+}
+#error-message {
+    background-color: #ffdddd;
+    color: #d8000c;
+    border: 1px solid #d8000c;
+    padding: 1em;
+    margin-bottom: 1em;
+    text-align: center;
+}
+#error-message h2 {
+    margin-top: 0;
+}
+#articles, #new-article, #article-details, #update-article {
+    margin-bottom: 2em;
+}
+#article-list {
+    border: 1px solid #ccc;
+    padding: 1em;
+}
+#article-form, #update-form {
+    display: flex;
+    flex-direction: column;
+}
+#article-form label, #update-form label {
+    margin-top: 0.5em;
+}
+#article-form input, #article-form textarea, #update-form input, #update-form textarea {
+    margin-bottom: 1em;
+    padding: 0.5em;
+    border: 1px solid #ccc;
+}
+button {
+    padding: 0.5em;
+    background-color: #333;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+button:hover {
+    background-color: #555;
+}
+#back-to-list {
+    margin-top: 1em;
+}
+#pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1em;
+}
+#pagination button {
+    margin: 0 0.5em;
+}
+#page-info {
+    margin: 0 1em;
+}
+.article:not(:last-child) {
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 1em;
+    margin-bottom: 1em;
+}
+.article-title {
+    cursor: pointer;
+}
+#search-container {
+    position: relative;
+    display: inline-block;
+}
+#search-box {
+    padding-right: 2.5em; /* espacio para el ícono de búsqueda */
+}
+#search-button {
+    position: absolute;
+    right: 0.4em;
+    top: 0;
+    bottom: 0;
+    background: transparent;
+    border: none;
+    color: #333;
+    padding: 0 0.5em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+#menu-list {
+    align-items:flex
+}

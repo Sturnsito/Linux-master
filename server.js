@@ -4,6 +4,7 @@
 const {connection} = require("./database/connection");
 const express = require("express");
 const cors = require("cors");
+const path = require('path');
 
 
 
@@ -28,6 +29,10 @@ app.use(cors());
 //convertir body a Json
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
+
+// Configurar la carpeta public para archivos estáticos
+app.use(express.static(path.join(__dirname, 'public')));
+
 
 //crear rutas
 const articleRoutes = require("./routes/article");
