@@ -7,7 +7,7 @@ const validator = require("validator");
 const validar = (parametros) => {
    //validamos los datos
    let validaTitle_isEmpty = validator.isEmpty(parametros.title);
-   let validaTitleLength = validator.isLength(parametros.title, {min:5, max:30});
+   let validaTitleLength = validator.isLength(parametros.title, {min:2, max:30});
 
 
    let validaContain_isEmpty = validator.isEmpty(parametros.contain);

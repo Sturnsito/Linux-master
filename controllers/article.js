@@ -25,34 +25,14 @@ const create = async (req, res) => {
     }
 
 
-}catch(err){
-    return  res.status(400).json({
-        mensaje: "Se ha producido un error al validar datos en \/create",
-        status: "error: "+err.message
-    });
-}
+    }catch(err){
+        return  res.status(400).json({
+            mensaje: "Se ha producido un error al validar datos en \/create",
+            status: "error: "+err.message
+        });
+    }
 
-   //validamos los datos
-   try {
-       let validaTitle_isEmpty = validator.isEmpty(parametros.title);
-       let validaTitleLength = validator.isLength(parametros.title, {min:5, max:30});
-
-
-       let validaContain_isEmpty = validator.isEmpty(parametros.contain);
-
-
-       if (validaTitle_isEmpty || !validaTitleLength || validaContain_isEmpty){
-           throw new Error("Información recibida no validada!");
-       }
-
-
-   }catch(err){
-       return  res.status(400).json({
-           mensaje: "Se ha producido un error al validar datos en \/create",
-           status: "error: "+err.message
-       });
-   }
-
+   
    
 
    // creamos el objeto a guardar con los parámetros validados
